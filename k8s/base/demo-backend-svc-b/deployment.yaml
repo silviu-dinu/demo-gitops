@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-backend-svc-b
+spec:
+  selector:
+    matchLabels:
+      app: demo-backend-svc-b
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: demo-backend-svc-b
+    spec:
+      containers:
+        - image: demo-backend-svc-b:v-00000
+          name: demo-backend-svc-b
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              port: 8081
+              path: /actuator/info
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              port: 8081
+              path: /actuator/health
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 100m
+            limits:
+              memory: 2Gi
+              cpu: 1000m
