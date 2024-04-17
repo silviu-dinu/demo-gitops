@@ -1,0 +1,16 @@
+name: Overlay Deploy
+on:
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      overlay:
+        type: choice
+        required: true
+        options: [dev, uat, prod]
+jobs:
+   deploy:
+     runs-on: ubuntu-latest
+     environment: ${{ inputs.overlay }}
+     steps:
+      - name: Checkout
+        uses: actions/checkout@v4

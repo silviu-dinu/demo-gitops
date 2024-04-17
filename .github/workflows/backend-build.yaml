@@ -1,0 +1,46 @@
+name: Backend Build
+run-name: Backend Build (${{ inputs.service }}) # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#run-name
+on:
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      overlay:
+        type: choice
+        required: true
+        options: [dev, uat, prod]
+      service:
+        type: choice
+        required: true
+        options: [demo-backend-svc-a]
+env:
+  OVERLAY: ${{ inputs.overlay }}
+  SERVICE: ${{ inputs.service }}
+  SERVICE_REPOSITORY_PATH: service-repository
+  SERVICE_REPOSITORY_OWNER: silviu-dinu  # @TODO: Update
+  REGISTRY_BASE_URL: ghcr.io/silviu-dinu # @TODO: Update
+  GH_TOKEN: ${{ github.token }}
+jobs:
+   Build:
+     runs-on: ubuntu-latest
+     environment: ${{ inputs.overlay }}
+     steps:
+      - name: Checkout GitOps repository
+        uses: actions/checkout@v4
+      - name: Checkout application repository
+        uses: actions/checkout@v4
+        with:
+          path: ${{env.SERVICE_REPOSITORY_PATH}} # See https://github.com/actions/checkout#checkout-multiple-repos-nested
+          repository: ${{env.SERVICE_REPOSITORY_OWNER}}/${{ inputs.service }}
+      - name: Scan code vulnerabilities
+        run: .github/workflows/workflow-steps.sh scan-code-vulnerabilities
+      - name: Build container image
+        run: .github/workflows/workflow-steps.sh build-container-image
+      - name: Push container image
+        run: .github/workflows/workflow-steps.sh push-container-image
+      - name: Update overlay image
+        run: .github/workflows/workflow-steps.sh update-overlay-image
+      - name: Create overlay pull request
+        run: .github/workflows/workflow-steps.sh create-overlay-pull-request
+      - if: inputs.overlay == 'dev'
+        name: Auto-merge overlay pull request
+        run: .github/workflows/workflow-steps.sh auto-merge-overlay-pull-request

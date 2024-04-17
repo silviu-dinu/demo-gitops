@@ -1,0 +1,4 @@
+commonLabels:
+  app: demo-backend-svc-a
+resources:
+  - deployment.yaml
