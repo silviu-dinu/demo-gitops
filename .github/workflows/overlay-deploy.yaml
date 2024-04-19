@@ -1,16 +1,55 @@
 name: Overlay Deploy
 on:
-  workflow_call:
-  workflow_dispatch:
-    inputs:
-      overlay:
-        type: choice
-        required: true
-        options: [dev, uat, prod]
+  pull_request:
+    types:
+    - closed
+    branches:
+    - main
+    paths:
+    - k8s/overlays/**/kustomization.yaml
 jobs:
-   deploy:
-     runs-on: ubuntu-latest
-     environment: ${{ inputs.overlay }}
-     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  Prepare:
+    # See https://github.com/orgs/community/discussions/26724#discussioncomment-3253099
+    if: github.event.pull_request.merged == true && contains(github.head_ref, 'release/')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout GitOps repository
+      uses: actions/checkout@v4
+    - name: Get overlay and service from head branch name
+      id: get-parameters-by-branch-name
+      run: |
+        echo overlay=`.github/workflows/workflow-steps.sh get-overlay-by-branch-name ${{ github.head_ref }}` >> "$GITHUB_OUTPUT"
+        echo service=`.github/workflows/workflow-steps.sh get-service-by-branch-name ${{ github.head_ref }}` >> "$GITHUB_OUTPUT"
+    outputs:
+      overlay: ${{ steps.get-parameters-by-branch-name.outputs.overlay }}
+      service: ${{ steps.get-parameters-by-branch-name.outputs.service }}
+
+  Deploy:
+    needs: [Prepare]
+    env:
+      OVERLAY: ${{ needs.Prepare.outputs.overlay }}
+      SERVICE: ${{ needs.Prepare.outputs.service }}
+      SERVICE_REPOSITORY_PATH: service-repository # @TODO: Read from environment
+      SERVICE_REPOSITORY_OWNER: silviu-dinu       # @TODO: Read from environment
+      REGISTRY_BASE_URL: ghcr.io/silviu-dinu      # @TODO: Read from environment
+      GH_TOKEN: ${{ github.token }}
+    runs-on: ubuntu-latest
+    environment: ${{ needs.Prepare.outputs.overlay }}
+    steps:
+    - name: Checkout GitOps repository
+      uses: actions/checkout@v4
+    - name: Deploying
+      run: .github/workflows/workflow-steps.sh apply-overlays
+    - name: Getting next overlay
+      id: get-next-overlay
+      run: echo next-overlay=`.github/workflows/workflow-steps.sh get-next-overlay` >> "$GITHUB_OUTPUT"
+    outputs:
+      next-overlay: ${{ steps.get-next-overlay.outputs.next-overlay }}
+
+  Overlay-Update:
+    needs: [Deploy]
+    uses: ./.github/workflows/overlay-update.yaml
+    with:
+      overlay: ${{ needs.Deploy.outputs.next-overlay }}
+      service: ${{ inputs.service }}
+      ref: '' # Not needed for after dev

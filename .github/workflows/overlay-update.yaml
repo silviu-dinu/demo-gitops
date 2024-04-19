@@ -14,9 +14,9 @@ on:
 env:
   OVERLAY: ${{ inputs.overlay }}
   SERVICE: ${{ inputs.service }}
-  SERVICE_REPOSITORY_PATH: service-repository
-  SERVICE_REPOSITORY_OWNER: silviu-dinu  # @TODO: Update
-  REGISTRY_BASE_URL: ghcr.io/silviu-dinu # @TODO: Update
+  SERVICE_REPOSITORY_PATH: service-repository # @TODO: Read from environment
+  SERVICE_REPOSITORY_OWNER: silviu-dinu       # @TODO: Read from environment
+  REGISTRY_BASE_URL: ghcr.io/silviu-dinu      # @TODO: Read from environment
   GH_TOKEN: ${{ github.token }}
 jobs:
   Update:
