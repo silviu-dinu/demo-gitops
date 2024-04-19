@@ -19,6 +19,7 @@ build_container_image() {
 
 push_container_image() {
   echo "Pushing container image..."
+  echo $GH_TOKEN | docker login $REGISTRY_BASE_URL -u USERNAME --password-stdin
   docker push $IMG_URL
 }
 
