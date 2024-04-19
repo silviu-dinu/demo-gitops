@@ -20,9 +20,11 @@ jobs:
       run: |
         echo overlay=`.github/workflows/workflow-steps.sh get-overlay-by-branch-name ${{ github.head_ref }}` >> "$GITHUB_OUTPUT"
         echo service=`.github/workflows/workflow-steps.sh get-service-by-branch-name ${{ github.head_ref }}` >> "$GITHUB_OUTPUT"
+        echo next-overlay=`.github/workflows/workflow-steps.sh get-next-overlay ${{ github.head_ref }}` >> "$GITHUB_OUTPUT"
     outputs:
       overlay: ${{ steps.get-parameters-by-branch-name.outputs.overlay }}
       service: ${{ steps.get-parameters-by-branch-name.outputs.service }}
+      next-overlay: ${{ steps.get-parameters-by-branch-name.outputs.next-overlay }}
 
   Deploy:
     needs: [Prepare]
@@ -40,16 +42,18 @@ jobs:
       uses: actions/checkout@v4
     - name: Deploying
       run: .github/workflows/workflow-steps.sh apply-overlays
-    - name: Getting next overlay
-      id: get-next-overlay
-      run: echo next-overlay=`.github/workflows/workflow-steps.sh get-next-overlay` >> "$GITHUB_OUTPUT"
-    outputs:
-      next-overlay: ${{ steps.get-next-overlay.outputs.next-overlay }}
 
   Overlay-Update:
-    needs: [Deploy]
+    needs: [Prepare, Deploy]
     uses: ./.github/workflows/overlay-update.yaml
+    env:
+      OVERLAY: ${{ needs.Prepare.outputs.overlay }}
+      SERVICE: ${{ needs.Prepare.outputs.service }}
+      SERVICE_REPOSITORY_PATH: service-repository # @TODO: Read from environment
+      SERVICE_REPOSITORY_OWNER: silviu-dinu       # @TODO: Read from environment
+      REGISTRY_BASE_URL: ghcr.io/silviu-dinu      # @TODO: Read from environment
+      GH_TOKEN: ${{ github.token }}
     with:
-      overlay: ${{ needs.Deploy.outputs.next-overlay }}
-      service: ${{ inputs.service }}
+      overlay: ${{ needs.Prepare.outputs.next-overlay }}
+      service: ${{ needs.Prepare.outputs.overlay }}
       ref: '' # Not needed for after dev
