@@ -46,13 +46,6 @@ jobs:
   Overlay-Update:
     needs: [Prepare, Deploy]
     uses: ./.github/workflows/overlay-update.yaml
-    env:
-      OVERLAY: ${{ needs.Prepare.outputs.overlay }}
-      SERVICE: ${{ needs.Prepare.outputs.service }}
-      SERVICE_REPOSITORY_PATH: service-repository # @TODO: Read from environment
-      SERVICE_REPOSITORY_OWNER: silviu-dinu       # @TODO: Read from environment
-      REGISTRY_BASE_URL: ghcr.io/silviu-dinu      # @TODO: Read from environment
-      GH_TOKEN: ${{ github.token }}
     with:
       overlay: ${{ needs.Prepare.outputs.next-overlay }}
       service: ${{ needs.Prepare.outputs.overlay }}
