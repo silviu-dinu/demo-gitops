@@ -14,13 +14,13 @@ scan_code_vulnerabilities() {
 
 build_container_image() {
   echo "Building container image..."
-  #docker build -t $IMG_URL $SERVICE_REPOSITORY_PATH
+  docker build -t $IMG_URL $SERVICE_REPOSITORY_PATH
 }
 
 push_container_image() {
   echo "Pushing container image..."
   echo $GH_TOKEN | docker login $REGISTRY_BASE_URL -u USERNAME --password-stdin
-  #docker push $IMG_URL
+  docker push $IMG_URL
 }
 
 update_overlay_image() {
@@ -70,11 +70,7 @@ create_overlay_pull_request() { # See https://stackoverflow.com/a/75308228
 
 auto_merge_overlay_pull_request() {
   echo "Auto-merging overlay pull request..."
-  echo $GH_PAT | wc
   GH_TOKEN=$GH_PAT gh pr merge $BRANCH --squash --auto
-
-  # echo "Auto-merging DISABLED to allow triggering overlay-deploy."
-  # gh pr merge $BRANCH --squash --auto
 }
 
 apply_overlays() {
