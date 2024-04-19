@@ -10,7 +10,7 @@ resources:
 images:
 - name: demo-backend-svc-a
   newName: ghcr.io/silviu-dinu/demo-backend-svc-a
-  newTag: v-033d184
+  newTag: v-f9a05b7
 - name: demo-backend-svc-b
   newName: ghcr.io/silviu-dinu/demo-backend-svc-b
   newTag: v-00000
