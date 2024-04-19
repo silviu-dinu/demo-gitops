@@ -35,6 +35,7 @@ jobs:
       SERVICE_REPOSITORY_OWNER: silviu-dinu       # @TODO: Read from environment
       REGISTRY_BASE_URL: ghcr.io/silviu-dinu      # @TODO: Read from environment
       GH_TOKEN: ${{ github.token }}
+      GH_PAT: ${{ secrets.GH_PAT }} # Used to merge PRs automatically and triggler workflows
     runs-on: ubuntu-latest
     environment: ${{ needs.Prepare.outputs.overlay }}
     steps:
