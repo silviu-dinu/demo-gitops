@@ -70,7 +70,7 @@ create_overlay_pull_request() { # See https://stackoverflow.com/a/75308228
 
 auto_merge_overlay_pull_request() {
   echo "Auto-merging overlay pull request..."
-  gh pr merge $BRANCH
+  gh pr merge $BRANCH --squash
 }
 
 apply_overlays() {
