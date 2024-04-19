@@ -12,7 +12,7 @@ on:
         type: string
         required: false
     secrets:
-      GH_PAT: # Used to merge PRs automatically and triggler workflows
+      GH_PAT: # Used to merge PRs automatically and triggler workflows (PAT Permissions: Contents - RW | Metadata - RO | Pull requests - RW)
         required: false
 env:
   OVERLAY: ${{ inputs.overlay }}
