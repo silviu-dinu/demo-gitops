@@ -6,6 +6,7 @@ SERVICE_REPOSITORY_PATH=$SERVICE_REPOSITORY_PATH
 VERSION=`git -C $SERVICE_REPOSITORY_PATH rev-parse --short HEAD 2> /dev/null`
 IMG_URL=$REGISTRY_BASE_URL/$SERVICE:v-$VERSION
 BRANCH=release/$SERVICE/$OVERLAY
+OVARLAYS_JSON='["dev", "uat", "prod"]'
 
 scan_code_vulnerabilities() {
   echo "Scanning code vulnerabilities..."
@@ -31,7 +32,7 @@ update_overlay_image() {
   local_version=$VERSION
 
   local_overlay_base_path=k8s/overlays
-  local_overlays_json='["dev", "uat", "prod"]'
+  local_overlays_json=$OVARLAYS_JSON
   local_overlay_prev=`echo $local_overlays_json | jq -r '.[index("'$local_overlay'") - 1]'`
   local_overlay_is_first=`echo $local_overlays_json | jq -r 'index("'$local_overlay'") == 0'`
 
@@ -56,21 +57,6 @@ update_overlay_image() {
   git add kustomization.yaml
   git commit -m "Release $local_service in $local_overlay ($local_version)."
   git push origin $local_branch
-
-  # git config --global user.email 'worflow-bot@example.com'
-  # git config --global user.name 'Workflow Bot'
-
-  # git fetch
-  # git branch -r | grep $BRANCH && git checkout $BRANCH || git checkout -B $BRANCH
-
-  # cd k8s/overlays/$OVERLAY && kustomize edit set image $SERVICE=$IMG_URL
-
-  # # Exit if there are no changes
-  # [[ ! `git status --porcelain kustomization.yaml` ]] && exit 0
-
-  # git add kustomization.yaml
-  # git commit -m "Release $SERVICE in $OVERLAY ($VERSION)."
-  # git push origin $BRANCH
 }
 
 create_overlay_pull_request() { # See https://stackoverflow.com/a/75308228
@@ -89,12 +75,14 @@ apply_overlays() {
   echo "Applying overlays..."
 }
 
-get_next_overlay() {
-  echo 'uat'
-}
-
 get_overlay_by_branch_name() {
   echo $1 | jq -Rr '. | split("/") | .[2]'
+}
+
+get_next_overlay_by_branch_name() {
+  local_overlays_json=$OVARLAYS_JSON
+  local_overlay=`get_overlay_by_branch_name $1`
+  echo $local_overlays_json | jq -r '.[index("'$local_overlay'") + 1] + ""'
 }
 
 get_service_by_branch_name() {

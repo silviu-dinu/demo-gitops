@@ -20,7 +20,7 @@ jobs:
       run: |
         echo overlay=`.github/workflows/workflow-steps.sh get-overlay-by-branch-name ${{ github.head_ref }}` >> "$GITHUB_OUTPUT"
         echo service=`.github/workflows/workflow-steps.sh get-service-by-branch-name ${{ github.head_ref }}` >> "$GITHUB_OUTPUT"
-        echo next-overlay=`.github/workflows/workflow-steps.sh get-next-overlay ${{ github.head_ref }}` >> "$GITHUB_OUTPUT"
+        echo next-overlay=`.github/workflows/workflow-steps.sh get-next-overlay-by-branch-name ${{ github.head_ref }}` >> "$GITHUB_OUTPUT"
     outputs:
       overlay: ${{ steps.get-parameters-by-branch-name.outputs.overlay }}
       service: ${{ steps.get-parameters-by-branch-name.outputs.service }}
@@ -44,6 +44,7 @@ jobs:
       run: .github/workflows/workflow-steps.sh apply-overlays
 
   Overlay-Update:
+    if: needs.Prepare.outputs.next-overlay != ''
     needs: [Prepare, Deploy]
     uses: ./.github/workflows/overlay-update.yaml
     with:
