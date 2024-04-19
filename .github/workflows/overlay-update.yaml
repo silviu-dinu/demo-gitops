@@ -11,6 +11,9 @@ on:
       ref:
         type: string
         required: false
+    secrets:
+      GH_PAT: # Used to merge PRs automatically and triggler workflows
+        required: false
 env:
   OVERLAY: ${{ inputs.overlay }}
   SERVICE: ${{ inputs.service }}
