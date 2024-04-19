@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: prod
+
+resources:
+- ../../base/demo-backend-svc-a
+- ../../base/demo-backend-svc-b
+
+images:
+- name: demo-backend-svc-a
+  newName: ghcr.io/silviu-dinu/demo-backend-svc-a
+  newTag: v-00000
+- name: demo-backend-svc-b
+  newName: ghcr.io/silviu-dinu/demo-backend-svc-b
+  newTag: v-00000
+
+replicas:
+- count: 3
+  name: demo-backend-svc-a
+- count: 3
+  name: demo-backend-svc-b
