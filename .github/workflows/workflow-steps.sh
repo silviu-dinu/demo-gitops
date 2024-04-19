@@ -14,12 +14,12 @@ scan_code_vulnerabilities() {
 
 build_container_image() {
   echo "Building container image..."
-  echo "docker build -t $IMG_URL $SERVICE_REPOSITORY_PATH"
+  docker build -t $IMG_URL $SERVICE_REPOSITORY_PATH
 }
 
 push_container_image() {
   echo "Pushing container image..."
-  echo "docker push $IMG_URL"
+  docker push $IMG_URL
 }
 
 update_overlay_image() {
@@ -43,6 +43,7 @@ update_overlay_image() {
     echo "Copied image $local_img_url from $local_overlay_prev to $local_overlay overlay."
   fi
 
+  # @TODO: move user details externally
   git config --global user.email 'worflow-bot@example.com'
   git config --global user.name 'Workflow Bot'
 
@@ -68,7 +69,7 @@ create_overlay_pull_request() { # See https://stackoverflow.com/a/75308228
 
 auto_merge_overlay_pull_request() {
   echo "Auto-merging overlay pull request..."
-  echo gh pr merge $BRANCH
+  gh pr merge $BRANCH
 }
 
 apply_overlays() {
