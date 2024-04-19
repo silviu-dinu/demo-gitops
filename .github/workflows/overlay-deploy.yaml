@@ -48,5 +48,5 @@ jobs:
     uses: ./.github/workflows/overlay-update.yaml
     with:
       overlay: ${{ needs.Prepare.outputs.next-overlay }}
-      service: ${{ needs.Prepare.outputs.overlay }}
+      service: ${{ needs.Prepare.outputs.service }}
       ref: '' # Not needed for after dev
