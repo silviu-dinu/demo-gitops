@@ -13,7 +13,7 @@ on:
         type: string
         required: false
 env:
-  OVERLAY: dev # ${{ inputs.overlay }}
+  OVERLAY: dev # Always start from DEV
   SERVICE: ${{ inputs.service }}
   SERVICE_REPOSITORY_PATH: service-repository # @TODO: Read from environment
   SERVICE_REPOSITORY_OWNER: silviu-dinu       # @TODO: Read from environment

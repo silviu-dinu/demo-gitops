@@ -70,7 +70,10 @@ create_overlay_pull_request() { # See https://stackoverflow.com/a/75308228
 
 auto_merge_overlay_pull_request() {
   echo "Auto-merging overlay pull request..."
-  gh pr merge $BRANCH --squash --auto
+  GH_TOKEN=$GH_PAT gh pr merge $BRANCH --squash --auto
+
+  # echo "Auto-merging DISABLED to allow triggering overlay-deploy."
+  # gh pr merge $BRANCH --squash --auto
 }
 
 apply_overlays() {
