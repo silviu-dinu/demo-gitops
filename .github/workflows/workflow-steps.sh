@@ -42,13 +42,14 @@ update_overlay_image() {
 
 create_overlay_pull_request() { # See https://stackoverflow.com/a/75308228
   echo "Creating overlay pull request..."
-  existing_pr=$(gh pr list --head release/demo-backend-svc-a/dev --json number --jq '.[]')
-  [[ $existing_pr ]] && echo "Pull request $existing_pr exists." && exit 0
+  existing_pr=$(gh pr list --head $BRANCH --json number --jq '.[].number')
+  [[ $existing_pr ]] && echo "Pull request #$existing_pr exists." && exit 0
   gh pr create -B main -H $BRANCH --title "Release \`$SERVICE\` in \`$OVERLAY\`" --body 'Created by Github Actions.'
 }
 
 auto_merge_overlay_pull_request() {
   echo "Auto-merging overlay pull request..."
+  echo gh pr merge $BRANCH
 }
 
 action=${1//-/_}

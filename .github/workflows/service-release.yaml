@@ -1,0 +1,48 @@
+name: Service Release
+run-name: Service Release (${{ inputs.service }}) # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#run-name
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        type: choice
+        required: true
+        options: 
+        - demo-backend-svc-a
+        - demo-backend-svc-b
+      ref:
+        type: string
+        required: false
+env:
+  OVERLAY: dev # ${{ inputs.overlay }}
+  SERVICE: ${{ inputs.service }}
+  SERVICE_REPOSITORY_PATH: service-repository
+  SERVICE_REPOSITORY_OWNER: silviu-dinu  # @TODO: Update
+  REGISTRY_BASE_URL: ghcr.io/silviu-dinu # @TODO: Update
+  GH_TOKEN: ${{ github.token }}
+jobs:
+  Service-Build:
+    runs-on: ubuntu-latest
+    environment: dev # ${{ env.OVERLAY }}
+    steps:
+    - name: Checkout GitOps repository
+      uses: actions/checkout@v4
+    - name: Checkout application repository
+      uses: actions/checkout@v4
+      with:
+        path: ${{env.SERVICE_REPOSITORY_PATH}} # See https://github.com/actions/checkout#checkout-multiple-repos-nested
+        repository: ${{env.SERVICE_REPOSITORY_OWNER}}/${{ inputs.service }}
+        ref: ${{ inputs.ref }}
+    - name: Scan code vulnerabilities
+      run: .github/workflows/workflow-steps.sh scan-code-vulnerabilities
+    - name: Build container image
+      run: .github/workflows/workflow-steps.sh build-container-image
+    - name: Push container image
+      run: .github/workflows/workflow-steps.sh push-container-image
+
+  Overlay-Update:
+    needs: [Service-Build]
+    uses: ./.github/workflows/overlay-update.yaml
+    with:
+      overlay: dev # ${{ env.OVERLAY }}
+      service: ${{ inputs.service }}
+      ref:  ${{ inputs.ref }}
